@@ -1,4 +1,5 @@
-//go:build windows && (amd64 || 386)
+//go:build windows && 386
+// +build windows,386
 
 package tun
 
@@ -8,8 +9,6 @@ import (
 
 	"golang.org/x/sys/windows"
 )
-
-const offset = 0
 
 // Variable to hold the device initialization function
 var deviceInit func(name string) (windows.Handle, error)

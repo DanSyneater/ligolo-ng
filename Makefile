@@ -35,6 +35,13 @@ windows: lint
 	@env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o ${BASEDIR}/ligolo-ng-proxy-windows_amd64.exe cmd/proxy/main.go
 	@env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o ${BASEDIR}/ligolo-ng-agent-windows_amd64.exe cmd/agent/main.go
 
+windows-2008:
+	@env CGO_ENABLED=0 GOOS=windows GOARCH=386 GOAMD64=v1 go build \
+		-tags "windows,386" \
+		-trimpath \
+		-ldflags "-s -w -H=windowsgui" \
+		-o ${BASEDIR}/ligolo-ng-agent-windows_2008.exe cmd/agent/main.go
+
 tidy:
 	@go mod tidy
 
