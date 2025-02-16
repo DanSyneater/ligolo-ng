@@ -28,6 +28,10 @@ linux: lint
 	@env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o ${BASEDIR}/ligolo-ng-agent-linux_amd64 cmd/agent/main.go
 
 windows: lint
+	# Build 32-bit version for Windows Server 2008
+	@env CGO_ENABLED=0 GOOS=windows GOARCH=386 go build -trimpath ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o ${BASEDIR}/ligolo-ng-proxy-windows_x86.exe cmd/proxy/main.go
+	@env CGO_ENABLED=0 GOOS=windows GOARCH=386 go build -trimpath ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o ${BASEDIR}/ligolo-ng-agent-windows_x86.exe cmd/agent/main.go
+	# Build 64-bit version
 	@env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o ${BASEDIR}/ligolo-ng-proxy-windows_amd64.exe cmd/proxy/main.go
 	@env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -trimpath ${LDFLAGS} ${GCFLAGS} ${ASMFLAGS} -o ${BASEDIR}/ligolo-ng-agent-windows_amd64.exe cmd/agent/main.go
 
