@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 
@@ -22,6 +23,7 @@ import (
 	"github.com/sirupsen/logrus"
 	goproxy "golang.org/x/net/proxy"
 	"nhooyr.io/websocket"
+	"golang.org/x/sys/windows"
 )
 
 var (
@@ -31,6 +33,17 @@ var (
 )
 
 func main() {
+	if runtime.GOOS == "windows" {
+		if !isAdmin() {
+			logrus.Fatal("This program requires administrative privileges")
+		}
+		
+		logrus.SetFormatter(&logrus.TextFormatter{
+			DisableColors: true,
+			FullTimestamp: true,
+		})
+	}
+
 	var tlsConfig tls.Config
 	var ignoreCertificate = flag.Bool("ignore-cert", false, "ignore TLS certificate validation (dangerous), only for debug purposes")
 	var acceptFingerprint = flag.String("accept-fingerprint", "", "accept certificates matching the following SHA256 fingerprint (hex format)")
@@ -251,4 +264,27 @@ func wsconnect(config *tls.Config, wsaddr string, proxystr string, useragent str
 		}
 		go agent.HandleConn(conn)
 	}
+}
+
+func isAdmin() bool {
+	if runtime.GOOS != "windows" {
+		return true
+	}
+	
+	var sid *windows.SID
+	err := windows.AllocateAndInitializeSid(
+		&windows.SECURITY_NT_AUTHORITY,
+		2,
+		windows.SECURITY_BUILTIN_DOMAIN_RID,
+		windows.DOMAIN_ALIAS_RID_ADMINS,
+		0, 0, 0, 0, 0, 0,
+		&sid)
+	if err != nil {
+		return false
+	}
+	defer windows.FreeSid(sid)
+
+	token := windows.Token(0)
+	member, err := token.IsMember(sid)
+	return err == nil && member
 }

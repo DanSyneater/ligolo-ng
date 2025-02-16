@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"os/user"
+	"runtime"
 	"syscall"
 	"time"
 
@@ -17,6 +18,7 @@ import (
 	"github.com/nicocha30/ligolo-ng/pkg/protocol"
 	"github.com/nicocha30/ligolo-ng/pkg/relay"
 	"github.com/sirupsen/logrus"
+	"golang.org/x/sys/windows"
 )
 
 var listenerConntrack map[int32]net.Conn
@@ -30,6 +32,29 @@ func init() {
 	listenerMap = make(map[int32]interface{})
 	id := uuid.New()
 	sessionID = id.String()
+
+	// Add Windows-specific initialization
+	if runtime.GOOS == "windows" {
+		// Initialize Windows socket handling
+		if err := initializeWinSock(); err != nil {
+			logrus.Warnf("Windows socket initialization warning: %v", err)
+		}
+	}
+}
+
+// Add helper function
+func initializeWinSock() error {
+	var d windows.WSAData
+	if err := windows.WSAStartup(windows.MakeWord(2, 2), &d); err != nil {
+		return fmt.Errorf("failed to initialize winsock: %v", err)
+	}
+	
+	// Ensure cleanup on exit
+	runtime.SetFinalizer(&d, func(d *windows.WSAData) {
+		windows.WSACleanup()
+	})
+	
+	return nil
 }
 
 // Listener is the base class implementing listener sockets for Ligolo

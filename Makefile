@@ -61,5 +61,10 @@ terminal_proxy:
 terminal_agent:
 	go run cmd/agent/main.go -connect localhost:11601 -ignore-cert
 
+build-windows:
+	GOOS=windows GOARCH=amd64 go build \
+		-tags "windows" \
+		-ldflags "-H=windowsgui -s -w" \
+		-o bin/agent.exe cmd/agent/main.go
 
 .PHONY: all linux windows tidy update dep lint security release clean terminal
