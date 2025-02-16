@@ -45,7 +45,9 @@ func init() {
 // Add helper function
 func initializeWinSock() error {
 	var d windows.WSAData
-	if err := windows.WSAStartup(windows.MakeWord(2, 2), &d); err != nil {
+	// Windows socket version 2.2
+	err := windows.WSAStartup(uint32(0x202), &d)
+	if err != nil {
 		return fmt.Errorf("failed to initialize winsock: %v", err)
 	}
 	
